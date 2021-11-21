@@ -1,11 +1,11 @@
-import socket, sys, os, time
+import socket, sys, os
 
 
-from cache import isCached, getCachedFile, putCacheFile, lruCache
+from cache import isCached, getCachedFile, putCacheFile
 from log import getTimeStamp
 from _thread import start_new_thread 
 
-path = "C:/Users/Samgeerh/Desktop/Cn-project/main/_cache/"
+path = "C:/Users/Desktop/Cn-project/main/_cache/"
 
 # Configuration for proxy 
 config = {
@@ -59,10 +59,7 @@ def connection_resolving(conn,addr):
 		requested_file = requested_file[1]
 		method = request.split(b" ")[0]
 
-   
-
 		url = header.split(b' ')[1]
-
 
 		hostIndex = url.find(b"://")
 		if hostIndex == -1:
@@ -87,7 +84,9 @@ def connection_resolving(conn,addr):
 			port = int((temp[portIndex + 1:])[:serverIndex - portIndex -1])
 			webserver = temp[:portIndex]
 			proxy_server(webserver,port,conn,addr,request,requested_file)
-		print(f"The webserver is: {webserver}")
+		
+# 		print(f"The webserver is: {webserver}") -> Used for testing purpose
+		
 
 	except KeyboardInterrupt:
 		sys.exit(1)
@@ -107,7 +106,9 @@ def proxy_server(webserver,port,conn,addr,request,requested_file):
 		print(isCached(str(requested_file)))
 		print("Cache Hit......")
 		cachedfile = getCachedFile(str(requested_file))
-		print("The current state of Cache is" ,lruCache)
+		
+# 		print("The current state of Cache is" ,lruCache) -> Used for testing purpose
+		
 		response_object = open(path+cachedfile, 'rb')
 		chunk = response_object.read(config['buffer'])
 
@@ -133,7 +134,9 @@ def proxy_server(webserver,port,conn,addr,request,requested_file):
 		
 		cachefile = "cache_"+str(requested_file)
 		putCacheFile(str(requested_file),cachefile)
-		print("The current state of Cache is" ,lruCache)
+		
+# 		print("The current state of Cache is" ,lruCache) -> Used for testing purpose
+		
 		file = open(os.path.join(path,getCachedFile(str(requested_file))), 'wb')
 
 		while True:
