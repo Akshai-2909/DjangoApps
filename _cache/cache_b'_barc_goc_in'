@@ -1,9 +1,0 @@
-HTTP/1.1 200 OK
-server: openresty/1.13.6.1
-date: Sun, 21 Nov 2021 05:27:55 GMT
-content-type: application/octet-stream
-content-length: 104
-content-type: text/html
-connection: close
-
-<html><head><title>barc.goc.in</title></head><body><h1>barc.goc.in</h1><p>Coming soon.</p></body></html>
