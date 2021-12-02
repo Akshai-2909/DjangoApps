@@ -1,11 +1,11 @@
-import socket, sys, os
+import socket, sys, os, time
+from _thread import start_new_thread 
 
 
 from cache import isCached, getCachedFile, putCacheFile
 from log import getTimeStamp
-from _thread import start_new_thread 
-
-path = "C:/Users/Desktop/Cn-project/main/_cache/"
+from blacklistcheck import check_if_blocked
+path = "C:/Users/Samgeerh/Desktop/Cn-project/main/_cache/"
 
 # Configuration for proxy 
 config = {
@@ -85,7 +85,6 @@ def connection_resolving(conn,addr):
 			webserver = temp[:portIndex]
 			proxy_server(webserver,port,conn,addr,request,requested_file)
 		
-# 		print(f"The webserver is: {webserver}") -> Used for testing purpose
 		
 
 	except KeyboardInterrupt:
@@ -98,16 +97,25 @@ def connection_resolving(conn,addr):
 
 def proxy_server(webserver,port,conn,addr,request,requested_file):
 	
+	domain = requested_file.replace(b"www.",b"").replace(b"http://",b"").replace(b"/",b"")
 	requested_file = requested_file.replace(b".",b"_").replace( b"http://",b"_").replace(b"/",b"")
+
+# Checking for the blocked domain
+	if check_if_blocked(domain.decode('utf-8')):
+		print(getTimeStamp()+"   The domain is blocked")
+		h = 'HTTP/1.1 404 Not Found\n'
+		h += 'Date: ' +time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime()) + '\n'
+		h += 'Server: Proxy\n'
+		h += 'Connection: close\n\n'
+		conn.send(h.encode('utf-8'))
+		conn.close()
 
 # Checking for the Cache hit in lrucache dict
 
-	if isCached(str(requested_file)):
-		print(isCached(str(requested_file)))
-		print("Cache Hit......")
+	elif isCached(str(requested_file)):
+		print(getTimeStamp()+"   Cache Hit......")
 		cachedfile = getCachedFile(str(requested_file))
 		
-# 		print("The current state of Cache is" ,lruCache) -> Used for testing purpose
 		
 		response_object = open(path+cachedfile, 'rb')
 		chunk = response_object.read(config['buffer'])
@@ -116,7 +124,7 @@ def proxy_server(webserver,port,conn,addr,request,requested_file):
 
 		while len(chunk) > 0:
 			conn.send(chunk)
-			print("The data is : "+str(chunk))
+			# print("The data is : "+str(chunk)) -> Used for Verification purpose
 			response_object.flush()
 			chunk = response_object.read(config['buffer'])
 		
@@ -127,7 +135,7 @@ def proxy_server(webserver,port,conn,addr,request,requested_file):
 # Forwading the request to the webserver, if no cache hit
 # Creating a copy of the response and save it in cache
 
-		print("Forwarding the request to the webserver")
+		print(getTimeStamp()+"   Forwarding the request to the webserver")
 		proxy = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		proxy.connect((webserver,port))
 		proxy.sendall(request)
@@ -135,7 +143,6 @@ def proxy_server(webserver,port,conn,addr,request,requested_file):
 		cachefile = "cache_"+str(requested_file)
 		putCacheFile(str(requested_file),cachefile)
 		
-# 		print("The current state of Cache is" ,lruCache) -> Used for testing purpose
 		
 		file = open(os.path.join(path,getCachedFile(str(requested_file))), 'wb')
 
