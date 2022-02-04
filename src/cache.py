@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-lruCache = OrderedDict()
+QueueCache = OrderedDict()
 
 
 # Cache Frame capacity
@@ -13,7 +13,7 @@ config = {
 # Checking for the cache file
 
 def isCached(file_name: str):
-	if file_name in lruCache:
+	if file_name in QueueCache:
 		return True
 	else:
 		return False
@@ -21,16 +21,15 @@ def isCached(file_name: str):
 # Returing the cache file name string
 
 def getCachedFile(file_name: str) -> str:
-	lruCache.move_to_end(file_name)
-	return lruCache[file_name]
+	QueueCache.move_to_end(file_name)
+	return QueueCache[file_name]
 
-# Putting the cache file into lruCache dict
+# Putting the cache file into QueueCache dict
 
 def putCacheFile(file_name: str, cacheFile: str):
-	lruCache[file_name] = cacheFile
-	lruCache.move_to_end(file_name)
-	if len(lruCache) > config['capacity']:
-		lruCache.popitem(last = False)
+	QueueCache[file_name] = cacheFile
+	QueueCache.move_to_end(file_name)
+	if len(QueueCache) > config['capacity']:
+		QueueCache.popitem(last = False)
 
 
-# print(lruCache) -> Used for testing purpose
