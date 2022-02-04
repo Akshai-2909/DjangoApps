@@ -1,24 +1,27 @@
 import requests
 import sys
 
-url = input("Enter the url of the site: ")
+urls = 0
+
+url_list = []
+while urls!=5:
+	urls +=1
+	url = input("Enter the url of the site "+str(urls)+":"+"\n")
+	url_list.append(url)
 
 
 proxies = {
-	"http": "http://127.0.0.1:8080",
-#     "https":"http://127.0.0.1:8080" 
+	"http": "http://127.0.0.1:8080", 
 }
 
-
+connection_number = 0
 try:
-	response = requests.get(url, proxies=proxies)
-	print("The response time is:"+str(response.elapsed))
-
+	for url in url_list:
+		connection_number +=1
+		response = requests.get(url, proxies=proxies)
+		print("connection_numberj is:"+str(connection_number))
 except KeyboardInterrupt:
-	sys.exit(1)
-
+	sys.exit(0)
 finally:
-	print("Succefully fetched the content")
-
-
+	print("Successfully fetched the content")
 
